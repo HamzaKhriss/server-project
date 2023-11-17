@@ -5,5 +5,39 @@ Install-WindowsFeature -Name DNS -IncludeAllSubFeature
 
 # File Server Role Installation
 Install-WindowsFeature -Name FS-FileServer
-# [Add Active Directory Users, Groups, and OU Creation Steps Here]
-# [Add Group Policies and Shared Folders Setup Here]
+
+# Create Organizational Units (OUs)
+New-ADOrganizationalUnit -Name "Devs"
+New-ADOrganizationalUnit -Name "Infra"
+New-ADOrganizationalUnit -Name "Administration"
+
+# Create User Groups for Each Department
+New-ADGroup -Name "DevsGroup" -GroupScope Global -Path "OU=Devs,DC=ciwigYOURID,DC=lan"
+New-ADGroup -Name "InfraGroup" -GroupScope Global -Path "OU=Infra,DC=ciwigYOURID,DC=lan"
+New-ADGroup -Name "AdminGroup" -GroupScope Global -Path "OU=Administration,DC=ciwigYOURID,DC=lan"
+
+# Create User Accounts and Assign to Groups
+# Repeat this block for each user in each department, replacing placeholder values
+$users = @(
+    @{ Name = "DevUser1"; OU = "Devs"; Group = "DevsGroup" },
+    @{ Name = "InfraUser1"; OU = "Infra"; Group = "InfraGroup" },
+    @{ Name = "AdminUser1"; OU = "Administration"; Group = "AdminGroup" }
+)
+
+foreach ($user in $users) {
+    New-ADUser -Name $user.Name -GivenName $user.Name -Surname "Surname" -UserPrincipalName "$($user.Name)@ciwigYOURID.lan" -Path "OU=$($user.OU),DC=ciwigYOURID,DC=lan" -AccountPassword (ConvertTo-SecureString "P@ssw0rd" -AsPlainText -Force) -Enabled $true
+    Add-ADGroupMember -Identity $user.Group -Members $user.Name
+}
+
+# Set Up Shared Folders for Each Department
+$sharedFolders = @{
+    "DevsShare" = "DevsGroup";
+    "InfraShare" = "InfraGroup";
+    "AdminShare" = "AdminGroup";
+}
+
+foreach ($folder in $sharedFolders.Keys) {
+    $path = "C:\Shares\$folder"
+    New-Item -Path $path -ItemType Directory
+    New-SmbShare -Name $folder -Path $path -FullAccess $sharedFolders[$folder]
+}
