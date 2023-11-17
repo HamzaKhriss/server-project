@@ -1,5 +1,31 @@
 # Windows Server Update Services (WSUS) Installation and Configuration
 Install-WindowsFeature -Name UpdateServices -IncludeManagementTools
-# [Add WSUS Initial Configuration Steps Here]
-# [Add WSUS Computer Group Creation Here]
-# [Add WSUS Update Synchronization and Approval Steps Here]
+
+# Initial WSUS Configuration
+[reflection.assembly]::LoadWithPartialName("Microsoft.UpdateServices.Administration")
+$wsus = [Microsoft.UpdateServices.Administration.AdminProxy]::GetUpdateServer()
+$wsusConfig = $wsus.GetConfiguration()
+$wsusConfig.LocalContentCacheLocation = "C:\WSUS"  # Replace with your chosen location
+$wsusConfig.Save()
+
+# Create WSUS Computer Groups
+$computerTargeting = $wsus.GetComputerTargeting()
+$devsGroup = $computerTargeting.CreateComputerTargetGroup("Devs")
+$infraGroup = $computerTargeting.CreateComputerTargetGroup("Infra")
+$serversGroup = $computerTargeting.CreateComputerTargetGroup("Servers")
+$devsGroup.Save()
+$infraGroup.Save()
+$serversGroup.Save()
+
+# Configure WSUS Update Synchronization
+$wsusConfig = $wsus.GetConfiguration()
+$wsusConfig.SyncFromMicrosoftUpdate = $true
+$wsusConfig.AutomaticSynchronizationEnabled = $true
+$wsusConfig.Save()
+Start-WsusServerSynchronization
+
+# Set GPO for Computers to Use WSUS
+# Note: This part is generally configured in Group Policy Management Console
+# The following is a basic example of setting it via the registry, for demonstration purposes
+Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate" -Name "WUServer" -Value "http://YourWSUSServer:8530"
+Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "UseWUServer" -Value 1
