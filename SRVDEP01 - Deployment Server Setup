@@ -1,0 +1,10 @@
+# Windows Deployment Services (WDS) and DHCP Installation
+Install-WindowsFeature -Name WDS -IncludeManagementTools
+Install-WindowsFeature -Name WDS-Deployment -IncludeAllSubFeature
+WDSUTIL /Set-Server /AnswerClients:All
+WDSUTIL /Initialize-Server /RemInst:"C:\RemoteInstall"
+WDSUTIL /Set-Server /Server:<YourServerName> /UseDHCPPorts:No /DHCPOption60:Yes
+# [Add WDS Image Addition Steps Here]
+
+# Microsoft Deployment Toolkit (MDT) Configuration
+# [Add MDT Installation and Configuration Steps Here]
