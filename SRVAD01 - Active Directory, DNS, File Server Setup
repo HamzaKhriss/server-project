@@ -1,0 +1,9 @@
+# Active Directory and DNS Installation
+Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
+Install-ADDSForest -DomainName "ciwigYOURID.lan" # Customize the domain name
+Install-WindowsFeature -Name DNS -IncludeAllSubFeature
+
+# File Server Role Installation
+Install-WindowsFeature -Name FS-FileServer
+# [Add Active Directory Users, Groups, and OU Creation Steps Here]
+# [Add Group Policies and Shared Folders Setup Here]
