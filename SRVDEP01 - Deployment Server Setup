@@ -4,7 +4,31 @@ Install-WindowsFeature -Name WDS-Deployment -IncludeAllSubFeature
 WDSUTIL /Set-Server /AnswerClients:All
 WDSUTIL /Initialize-Server /RemInst:"C:\RemoteInstall"
 WDSUTIL /Set-Server /Server:<YourServerName> /UseDHCPPorts:No /DHCPOption60:Yes
-# [Add WDS Image Addition Steps Here]
+
+# Add Boot and Install Images to WDS
+# Note: Replace paths with the actual location of your Windows 10 source files
+WDSUTIL /Add-Image /ImageFile:"C:\Path\To\Your\boot.wim" /ImageType:Boot
+WDSUTIL /Add-Image /ImageFile:"C:\Path\To\Your\install.wim" /ImageType:Install
 
 # Microsoft Deployment Toolkit (MDT) Configuration
-# [Add MDT Installation and Configuration Steps Here]
+# Assuming MDT is already installed
+Import-Module "C:\Program Files\Microsoft Deployment Toolkit\bin\MicrosoftDeploymentToolkit.psd1"
+New-PSDrive -Name "DS001" -PSProvider MDTProvider -Root "C:\DeploymentShare"
+
+# Create and Configure a Deployment Share
+New-Item -Path "C:\DeploymentShare" -ItemType Directory
+New-MDTDeploymentShare -Path "C:\DeploymentShare"
+
+# Import Operating System and Applications to MDT
+Import-MDTOperatingSystem -Path "DS001:\Operating Systems\Windows 10" -SourcePath "C:\Path\To\Your\Windows10\Source"
+Import-MDTApplication -Path "DS001:\Applications\Firefox" -ApplicationName "Firefox" -CommandLine "FirefoxInstaller.exe" -SourcePath "C:\Path\To\Firefox"
+Import-MDTApplication -Path "DS001:\Applications\SublimeText" -ApplicationName "Sublime Text" -CommandLine "SublimeTextInstaller.exe" -SourcePath "C:\Path\To\SublimeText"
+
+# Create a Task Sequence for Zero Touch Installation (ZTI)
+New-MDTTaskSequence -Path "DS001:\Task Sequences" -Name "Windows 10 ZTI Deployment" -Template "Standard Client Task Sequence" -OperatingSystem "DS001:\Operating Systems\Windows 10\Windows 10 Enterprise" -ProductKey "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
+
+# Update Deployment Share
+Update-MDTDeploymentShare -Path "DS001:"
+
+# Additional Configurations for User-Driven Installation Process
+# [Note: Detailed configurations for user-driven options, such as choosing computer name and profile, would typically be done within the MDT Workbench and Task Sequences.]
