@@ -1,0 +1,5 @@
+# Windows Server Update Services (WSUS) Installation and Configuration
+Install-WindowsFeature -Name UpdateServices -IncludeManagementTools
+# [Add WSUS Initial Configuration Steps Here]
+# [Add WSUS Computer Group Creation Here]
+# [Add WSUS Update Synchronization and Approval Steps Here]
