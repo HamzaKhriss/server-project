@@ -1,2 +1,15 @@
-# Basic Network Configuration for Clients
-# [Add Basic Network Configuration Steps Here]
+# Example of Basic Network Configuration
+# Replace with appropriate IP addresses and settings for your network
+$ipAddress = "192.168.1.101" # Change this for each client
+$subnetMask = 24
+$defaultGateway = "192.168.1.1"
+$dnsServer = "192.168.1.10" # Your DNS server IP, typically the AD server
+
+New-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress $ipAddress -PrefixLength $subnetMask -DefaultGateway $defaultGateway
+Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses $dnsServer
+
+# Set Registry to Use WSUS Server for Updates
+# This is an alternative to using GPO for WSUS configuration
+$wsusServer = "http://YourWSUSServer:8530" # Replace with your WSUS server address
+Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate" -Name "WUServer" -Value $wsusServer
+Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "UseWUServer" -Value 1
