@@ -40,6 +40,3 @@ This repository contains a series of PowerShell scripts designed for setting up 
 - Test the scripts in a controlled environment before deploying them in a production setting.
 - Follow the instructions in each script for detailed steps and customization.
 
-## Support
-
-For support or queries related to these scripts, please reach out to the IT department or the project administrator.
